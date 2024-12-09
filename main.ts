@@ -316,6 +316,22 @@ function dollar(x: number, y: number, spacing: number) {
 }
 
 //  width of letter
+function o_parenthesis(x: number, y: number, spacing: number) {
+    OLED12864_I2C.pixel(x + 1, y, 1)
+    OLED12864_I2C.vline(x, y + 1, 5, 1)
+    OLED12864_I2C.pixel(x + 1, y + 6, 1)
+    return 2 + spacing
+}
+
+//  width of character
+function c_parenthesis(x: number, y: number, spacing: number) {
+    OLED12864_I2C.vline(x + 1, y + 1, 5, 1)
+    OLED12864_I2C.pixel(x, y, 1)
+    OLED12864_I2C.pixel(x, y + 6, 1)
+    return 2 + spacing
+}
+
+//  width of character
 function one(x: number, y: number, spacing: number) {
     OLED12864_I2C.pixel(x, y, 1)
     //  Top dot
@@ -499,6 +515,42 @@ function caps_h(x: number, y: number, spacing: number) {
 }
 
 //  width of letter
+function caps_p(x: number, y: number, spacing: number) {
+    OLED12864_I2C.hline(x, y, 3, 1)
+    //  Top horizontal line
+    OLED12864_I2C.vline(x, y, 7, 1)
+    //  Left vertical line
+    OLED12864_I2C.vline(x + 3, y + 1, 2, 1)
+    //  Right vertical line
+    OLED12864_I2C.hline(x, y + 3, 3, 1)
+    //  Middle horizontal line
+    return 4 + spacing
+}
+
+//  width of character
+function caps_a(x: number, y: number, spacing: number) {
+    OLED12864_I2C.pixel(x + 2, y, 1)
+    //  Pixel at (x+2, y)
+    OLED12864_I2C.pixel(x + 1, y + 1, 1)
+    //  Pixel at (x+1, y+1)
+    OLED12864_I2C.pixel(x + 3, y + 1, 1)
+    //  Pixel at (x+3, y+1)
+    OLED12864_I2C.vline(x, y + 2, 5, 1)
+    //  Vertical line from (x, y+2) to (x, y+6)
+    OLED12864_I2C.vline(x + 4, y + 2, 5, 1)
+    //  Vertical line from (x+4, y+2) to (x+4, y+6)
+    OLED12864_I2C.hline(x, y + 3, 5, 1)
+    //  Horizontal line from (x, y+3) to (x+4, y+3)
+    return 5 + spacing
+}
+
+//  width of character
+function period(x: number, y: number, spacing: number) {
+    OLED12864_I2C.pixel(x, y + 6, 1)
+    return 1 + spacing
+}
+
+//  width of character
 function space(): number {
     return 1
 }
@@ -597,16 +649,42 @@ function draw_text(text: string, x: number, y: number, spacing: number) {
             x += caps_h(x, y, spacing)
         } else if (char == "$") {
             x += dollar(x, y, spacing)
+        } else if (char == "(") {
+            x += o_parenthesis(x, y, spacing)
+        } else if (char == ")") {
+            x += c_parenthesis(x, y, spacing)
+        } else if (char == ".") {
+            x += period(x, y, spacing)
+        } else if (char == "P") {
+            x += caps_p(x, y, spacing)
+        } else if (char == "A") {
+            x += caps_a(x, y, spacing)
         }
         
     }
 }
 
-//  Starting position
+// ACTUAL CODE IS BELOW, NORMAL FUNCTIONS ABOVE
+pins.setPull(DigitalPin.P0, PinPullMode.PullUp)
+pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+pins.setPull(DigitalPin.P2, PinPullMode.PullUp)
 let x = 0
 //  starting x position
 let y = 0
 //  starting y position
 let spacing = 1
 //  space between letters
-draw_text("$1234567890WwHh^abcdefghijklmnopqrstuvwxyz?^lol 1 i can write anything now^one line in^four lines in i guess^theres five^six^seven", x, y, spacing)
+let answer1 = false
+draw_text("What is your budget?^1)  $500 and below^2)  $500 to $800^3)  $800 and above", x, y, spacing)
+while (answer1 == false) {
+    if (pins.digitalReadPin(DigitalPin.P0) == 0) {
+        answer1 = true
+        OLED12864_I2C.clear()
+        draw_text("Preferred operating system?^Android^iOS", x, y, spacing)
+    } else if (pins.digitalReadPin(DigitalPin.P1) == 0) {
+        basic.pause(1000)
+    } else if (pins.digitalReadPin(DigitalPin.P2) == 0) {
+        basic.pause(1000)
+    }
+    
+}

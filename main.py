@@ -217,6 +217,18 @@ def dollar(x: int, y: int, spacing: int):
     OLED12864_I2C.pixel(x + 4, y + 4, 1)  # Bottom right pixel
     return 5 + spacing  # width of letter
 
+def o_parenthesis(x: int, y: int, spacing: int):
+    OLED12864_I2C.pixel(x + 1, y, 1)
+    OLED12864_I2C.vline(x, y + 1, 5, 1)
+    OLED12864_I2C.pixel(x + 1, y + 6, 1)
+    return 2 + spacing  # width of character
+
+def c_parenthesis(x: int, y: int, spacing: int):
+    OLED12864_I2C.vline(x + 1, y + 1, 5, 1)
+    OLED12864_I2C.pixel(x, y, 1)
+    OLED12864_I2C.pixel(x, y + 6, 1)
+    return 2 + spacing  # width of character
+
 def one(x: int, y: int, spacing: int):
     OLED12864_I2C.pixel(x, y, 1)         # Top dot
     OLED12864_I2C.vline(x + 1, y, 6, 1)  # Middle vertical line
@@ -315,6 +327,26 @@ def caps_h(x: int, y: int, spacing: int):
     OLED12864_I2C.hline(x, y + 3, 4, 1)  # Middle horizontal line
     return 4 + spacing  # width of letter
 
+def caps_p(x: int, y: int, spacing: int):
+    OLED12864_I2C.hline(x, y, 3, 1)      # Top horizontal line
+    OLED12864_I2C.vline(x, y, 7, 1)      # Left vertical line
+    OLED12864_I2C.vline(x + 3, y + 1, 2, 1)  # Right vertical line
+    OLED12864_I2C.hline(x, y + 3, 3, 1)  # Middle horizontal line
+    return 4 + spacing  # width of character
+
+def caps_a(x: int, y: int, spacing: int):
+    OLED12864_I2C.pixel(x + 2, y, 1)     # Pixel at (x+2, y)
+    OLED12864_I2C.pixel(x + 1, y + 1, 1) # Pixel at (x+1, y+1)
+    OLED12864_I2C.pixel(x + 3, y + 1, 1) # Pixel at (x+3, y+1)
+    OLED12864_I2C.vline(x, y + 2, 5, 1)  # Vertical line from (x, y+2) to (x, y+6)
+    OLED12864_I2C.vline(x + 4, y + 2, 5, 1)  # Vertical line from (x+4, y+2) to (x+4, y+6)
+    OLED12864_I2C.hline(x, y + 3, 5, 1)  # Horizontal line from (x, y+3) to (x+4, y+3)
+    return 5 + spacing  # width of character
+
+def period(x: int, y: int, spacing: int):
+    OLED12864_I2C.pixel(x, y + 6, 1)
+    return 1 + spacing  # width of character
+
 def space():
     return 1
 
@@ -410,9 +442,36 @@ def draw_text(text: str, x: int, y: int, spacing: int):
             x += caps_h(x, y, spacing)
         elif char == '$':
             x += dollar(x, y, spacing)
+        elif char == '(':
+            x += o_parenthesis(x, y, spacing)
+        elif char == ')':
+            x += c_parenthesis(x, y, spacing)
+        elif char == '.':
+            x += period(x, y, spacing)
+        elif char == 'P':
+            x += caps_p(x, y, spacing)
+        elif char == 'A':
+            x += caps_a(x, y, spacing)
+#ACTUAL CODE IS BELOW, NORMAL FUNCTIONS ABOVE
 
-# Starting position
+pins.set_pull(DigitalPin.P0, PinPullMode.PULL_UP)
+pins.set_pull(DigitalPin.P1, PinPullMode.PULL_UP)
+pins.set_pull(DigitalPin.P2, PinPullMode.PULL_UP)
+
+
+
+
 x = 0  # starting x position
 y = 0  # starting y position
 spacing = 1  # space between letters
-draw_text("$1234567890WwHh^abcdefghijklmnopqrstuvwxyz?^lol 1 i can write anything now^one line in^four lines in i guess^theres five^six^seven", x, y, spacing)
+answer1 = False
+draw_text("What is your budget?^1)  $500 and below^2)  $500 to $800^3)  $800 and above", x, y, spacing)
+while answer1 == False:
+    if pins.digital_read_pin(DigitalPin.P0) == 0:
+        answer1 = True
+        OLED12864_I2C.clear()
+        draw_text("Preferred operating system?^Android^iOS", x, y, spacing)
+    elif pins.digital_read_pin(DigitalPin.P1) == 0:
+        basic.pause(1000)
+    elif pins.digital_read_pin(DigitalPin.P2) == 0:
+        basic.pause(1000)
